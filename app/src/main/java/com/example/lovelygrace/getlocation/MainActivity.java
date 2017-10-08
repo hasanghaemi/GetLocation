@@ -20,6 +20,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient; //provied common entry point to all Google Play Services
     private Location mLastLocation;
+    private DatabaseReference mRoot;
 
     private static int UPDATE_INTERVAL = 5000; // SEC
     private static int FATEST_INTERVAL = 3000; // SEC
@@ -59,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         txtCoordinates = (TextView) findViewById(R.id.txtCoordinates);
         txtlatitude = (TextView) findViewById(R.id.textView2);
         txtlongitude = (TextView) findViewById(R.id.textView3);
@@ -96,13 +98,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 tooglePeriodicLocationUpdates();
             }
         });
+        mRoot = FirebaseDatabase.getInstance().getReferenceFromUrl("https://getlocation-72c91.firebaseio.com/");
 
         btnSendToDb.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                txtlatitude.setText("Sending latitude to database");
-                txtlongitude.setText("Sending longitude to database");
+                String latVal = txtlatitude.getText().toString();
+                String longVal = txtlongitude.getText().toString();
+                //this has a warning so i might just comment this out.
+                //txtlatitude.setText("Sending latitude to database");
+                //txtlongitude.setText("Sending longitude to database");
+                DatabaseReference latitude = mRoot.child("latitude");
+                DatabaseReference longitude = mRoot.child("longitude");
+                latitude.setValue(latVal);
+                longitude.setValue(longVal);
             }
         });
+
     }
 
     @Override
